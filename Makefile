@@ -31,8 +31,8 @@ test: ## Run pure-Rust unit tests (no Godot required)
 # Godot
 # ---------------------------------------------------------------------------
 
-run: build ## Build then launch the hello scene headlessly (quick smoke test)
-	$(GODOT) --headless --path $(GODOT_DIR) res://scenes/hello.tscn --quit
+run: build ## Build then launch the game scene headlessly (quick smoke test)
+	$(GODOT) --headless --path $(GODOT_DIR) res://scenes/game.tscn --quit-after 2
 
 run-editor: build ## Build then open the Godot editor
 	$(GODOT) --editor --path $(GODOT_DIR) &
