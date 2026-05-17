@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://hello"]
+
+[node name="HelloScene" type="Node2D"]
+
+[node name="HelloNode" type="HelloNode" parent="."]

@@ -1,0 +1,11 @@
+[package]
+name = "godot-gdext-demo"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "godot_gdext_demo"
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }

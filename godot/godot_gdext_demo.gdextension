@@ -1,0 +1,17 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.1
+reloadable = true
+
+[libraries]
+; Paths are relative to the Godot project root (res://).
+; The library sits one directory up in rust/target/.
+
+linux.debug.x86_64   = "res://../rust/target/debug/libgodot_gdext_demo.so"
+linux.release.x86_64 = "res://../rust/target/release/libgodot_gdext_demo.so"
+
+macos.debug          = "res://../rust/target/debug/libgodot_gdext_demo.dylib"
+macos.release        = "res://../rust/target/release/libgodot_gdext_demo.dylib"
+
+windows.debug.x86_64   = "res://../rust/target/debug/godot_gdext_demo.dll"
+windows.release.x86_64 = "res://../rust/target/release/godot_gdext_demo.dll"

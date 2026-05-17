@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Rust: lint + unit tests. No Godot needed.
+  # ---------------------------------------------------------------------------
+  rust:
+    name: Rust (check / clippy / test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry + build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: cargo check
+        run: cargo check --manifest-path rust/Cargo.toml
+
+      - name: cargo clippy
+        run: cargo clippy --manifest-path rust/Cargo.toml -- -D warnings
+
+      - name: cargo test
+        run: cargo test --manifest-path rust/Cargo.toml
+
+  # ---------------------------------------------------------------------------
+  # Godot: build extension then run a headless import + scene smoke test.
+  # ---------------------------------------------------------------------------
+  godot:
+    name: Godot (build + headless smoke test)
+    runs-on: ubuntu-latest
+    # Only run this job after Rust passes — no point building the .so if
+    # clippy / tests are already red.
+    needs: rust
+
+    env:
+      GODOT_VERSION: 4.6.2.stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry + build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build Rust extension (debug)
+        run: cargo build --manifest-path rust/Cargo.toml
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          VERSION="${{ env.GODOT_VERSION }}"
+          # e.g. "4.6.2.stable" → "4.6.2" and "stable"
+          BASE="${VERSION%.*}"   # 4.6.2
+          # Download the Linux headless export (no display server required)
+          URL="https://github.com/godotengine/godot/releases/download/${BASE}-${VERSION##*.}/Godot_v${BASE}-${VERSION##*.}_linux.x86_64.zip"
+          wget -q "$URL" -O godot.zip
+          unzip -q godot.zip
+          # The zip contains a single binary; rename it for convenience.
+          mv Godot_v${BASE}-${VERSION##*.}_linux.x86_64 godot-bin
+          chmod +x godot-bin
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Warm-up import (register resources + extension)
+        run: ./godot-bin --headless --path godot --import --quit || true
+
+      - name: Smoke test — load hello scene and quit
+        run: |
+          ./godot-bin --headless --path godot res://scenes/hello.tscn --quit-after 2
