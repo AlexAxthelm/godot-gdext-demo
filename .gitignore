@@ -6,3 +6,27 @@ rust/build/
 *.pdb
 **/mutants.out*/
 
+# ── Godot — generated, never commit ───────────────────────────────────────────
+# Imported asset cache (rebuilt on first open)
+godot/.godot/imported/
+# Script class registry (rebuilt on import)
+godot/.godot/global_script_class_cache.cfg
+godot/.godot/scene_groups_cache.cfg
+godot/.godot/uid_cache.bin
+# Shader cache
+godot/.godot/shader_cache/
+# Editor state (layout, recent files, breakpoints — personal, not project)
+godot/.godot/editor/
+# Godot's own .gdignore marker inside .godot/
+godot/.godot/.gdignore
+# UID sidecar files generated alongside resources
+*.uid
+# Import sidecar files generated alongside assets
+*.import
+
+# ── Godot — DO commit ─────────────────────────────────────────────────────────
+# godot/.godot/extension_list.cfg  ← Godot needs this to load the extension
+#                                    on first open (fresh clone, CI, etc.)
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
