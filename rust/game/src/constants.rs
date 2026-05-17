@@ -18,7 +18,7 @@ pub const NODE_SELECT_RADIUS: f32 = 80.0; // tap-near-node selects units within 
 pub const UNIT_RADIUS: f32 = 6.0;
 pub const UNIT_SPEED: f32 = 90.0;        // px/s toward destination
 pub const DRIFT_SPEED: f32 = 18.0;       // px/s gentle drift
-pub const DRIFT_CHANGE_INTERVAL: f32 = 2.0; // seconds between drift direction changes
+pub const DRIFT_CHANGE_INTERVAL: f32 = 0.2; // seconds between drift direction changes
 pub const DRIFT_RADIUS: f32 = 40.0;      // max distance from anchor before drifting back
 
 pub const ATTACK_RANGE: f32 = 14.0;      // units fight when closer than this
