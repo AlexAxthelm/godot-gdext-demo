@@ -15,3 +15,7 @@ macos.release        = "res://../rust/target/release/libgodot_gdext_demo.dylib"
 
 windows.debug.x86_64   = "res://../rust/target/debug/godot_gdext_demo.dll"
 windows.release.x86_64 = "res://../rust/target/release/godot_gdext_demo.dll"
+
+; Wasm — no-threads build (works on all hosts, no SharedArrayBuffer required)
+web.debug.wasm32   = "res://../rust/target/wasm32-unknown-emscripten/debug/godot_gdext_demo.wasm"
+web.release.wasm32 = "res://../rust/target/wasm32-unknown-emscripten/release/godot_gdext_demo.wasm"

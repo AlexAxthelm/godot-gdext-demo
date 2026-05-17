@@ -24,6 +24,9 @@ godot/.godot/.gdignore
 # Import sidecar files generated alongside assets
 *.import
 
+godot/.godot/export_credentials.cfg
+godot/.godot/exported/
+
 # ── Godot — DO commit ─────────────────────────────────────────────────────────
 # godot/.godot/extension_list.cfg  ← Godot needs this to load the extension
 #                                    on first open (fresh clone, CI, etc.)

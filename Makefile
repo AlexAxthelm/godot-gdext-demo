@@ -4,7 +4,7 @@ RUST_DIR     := rust
 GODOT_DIR    := godot
 GODOT_VERSION := 4.6.2.stable.official
 
-.PHONY: help build build-release check test run run-editor watch clean
+.PHONY: help build build-release build-wasm build-wasm-release check test run run-editor watch clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -19,6 +19,23 @@ build: ## Compile the Rust extension (debug)
 
 build-release: ## Compile the Rust extension (release)
 	$(CARGO) build --release --manifest-path $(RUST_DIR)/Cargo.toml
+
+build-wasm: ## Compile for Wasm (debug, no-threads)
+	cd $(RUST_DIR)/game && \
+	cargo +nightly build \
+		--features nothreads \
+		-Zbuild-std \
+		--target wasm32-unknown-emscripten \
+		--manifest-path Cargo.toml
+
+build-wasm-release: ## Compile for Wasm (release, no-threads)
+	cd $(RUST_DIR)/game && \
+	cargo +nightly build \
+		--features nothreads \
+		-Zbuild-std \
+		--target wasm32-unknown-emscripten \
+		--release \
+		--manifest-path Cargo.toml
 
 check: ## cargo check + clippy (no full compile)
 	$(CARGO) check --manifest-path $(RUST_DIR)/Cargo.toml
