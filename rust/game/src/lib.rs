@@ -1,8 +1,11 @@
 use godot::prelude::*;
 
-mod hello_node;
+mod constants;
+mod team;
+mod unit;
+mod map_node;
+mod game;
 
-// This is the extension entry point. Godot calls gdext_rust_init on load.
 struct GodotGdextDemo;
 
 #[gdextension]

@@ -1,12 +1,17 @@
 ; Engine configuration file.
 ; It's best edited using the editor UI and not directly,
-; but you're free to open it if you want to make changes.
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
 [application]
 
 config/name="godot-gdext-demo"
+run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://assets/icon.svg"
 
