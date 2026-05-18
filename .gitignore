@@ -26,6 +26,7 @@ godot/.godot/.gdignore
 
 godot/.godot/export_credentials.cfg
 godot/.godot/exported/
+godot/export/
 
 # ── Godot — DO commit ─────────────────────────────────────────────────────────
 # godot/.godot/extension_list.cfg  ← Godot needs this to load the extension
