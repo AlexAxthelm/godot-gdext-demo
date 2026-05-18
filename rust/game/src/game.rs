@@ -345,11 +345,10 @@ impl Game {
             let mut nearest_dist = PURSUE_RANGE;
             let mut nearest_pos = None;
 
-            for j in 0..positions_teams.len() {
+            for (j, &(pos_j, team_j)) in positions_teams.iter().enumerate() {
                 if i == j {
                     continue;
                 }
-                let (pos_j, team_j) = positions_teams[j];
                 if team_i.is_enemy_of(team_j) {
                     let d = (pos_i - pos_j).length();
                     if d < nearest_dist {
