@@ -7,5 +7,14 @@ edition = "2021"
 name = "godot_gdext_demo"
 crate-type = ["cdylib"]
 
+[features]
+# Enable for a no-threads wasm build (broader browser/host compatibility).
+# Used by: make build-wasm
+nothreads = [
+    "godot/experimental-wasm",
+    "godot/experimental-wasm-nothreads",
+    "godot/lazy-function-tables",
+]
+
 [dependencies]
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }

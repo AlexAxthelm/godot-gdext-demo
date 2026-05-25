@@ -1,4 +1,4 @@
-use godot::classes::{INode2D, InputEvent, InputEventMouseButton, InputEventMouseMotion, Node2D};
+use godot::classes::{INode2D, InputEvent, InputEventMouseButton, InputEventMouseMotion, Label, Node2D};
 use godot::global::MouseButton;
 use godot::prelude::*;
 
@@ -32,13 +32,13 @@ pub struct Game {
     nodes: Vec<Gd<MapNode>>,
     units: Vec<Gd<Unit>>,
 
-    selected: Vec<usize>, // indices into `units`
+    selected: Vec<usize>,
     input_mode: InputMode,
 
-    // AI timer
     ai_timer: f32,
-
     winner: Option<Team>,
+
+    stats_label: Option<Gd<Label>>,
 
     base: Base<Node2D>,
 }
@@ -78,6 +78,7 @@ impl INode2D for Game {
             input_mode: InputMode::Idle,
             ai_timer: 0.0,
             winner: None,
+            stats_label: None,
             base,
         }
     }
@@ -85,6 +86,17 @@ impl INode2D for Game {
     fn ready(&mut self) {
         self.setup_nodes();
         self.spawn_starting_units();
+
+        // Stats overlay — top-left label, no font resource needed
+        let mut label = Label::new_alloc();
+        label.set_position(Vector2::new(8.0, 8.0));
+        // Bright color so it's visible against the dark field
+        label.add_theme_color_override(
+            "font_color",
+            Color::from_rgb(1.0, 1.0, 0.2),
+        );
+        self.base_mut().add_child(&label);
+        self.stats_label = Some(label);
     }
 
     fn process(&mut self, delta: f64) {
@@ -98,6 +110,7 @@ impl INode2D for Game {
         self.tick_spawns(delta);
         self.tick_ai(delta);
         self.check_win();
+        self.update_stats(delta);
         self.base_mut().queue_redraw();
     }
 
@@ -182,6 +195,21 @@ impl INode2D for Game {
 
 #[godot_api]
 impl Game {
+    fn update_stats(&mut self, delta: f32) {
+        let fps = if delta > 0.0 { (1.0 / delta) as i32 } else { 0 };
+        let player_units = self.units.iter().filter(|u| u.bind().team == Team::Player).count();
+        let enemy_units  = self.units.iter().filter(|u| u.bind().team == Team::Enemy).count();
+        let player_nodes = self.nodes.iter().filter(|n| n.bind().team == Team::Player).count();
+        let enemy_nodes  = self.nodes.iter().filter(|n| n.bind().team == Team::Enemy).count();
+
+        let text = format!(
+            "FPS: {fps}\nPlayer  units: {player_units}  nodes: {player_nodes}\nEnemy   units: {enemy_units}  nodes: {enemy_nodes}"
+        );
+
+        if let Some(label) = &mut self.stats_label {
+            label.set_text(text.as_str());
+        }
+    }
     fn setup_nodes(&mut self) {
         let positions = node_positions();
         let base = self.base().get_path();
@@ -317,11 +345,10 @@ impl Game {
             let mut nearest_dist = PURSUE_RANGE;
             let mut nearest_pos = None;
 
-            for j in 0..positions_teams.len() {
+            for (j, &(pos_j, team_j)) in positions_teams.iter().enumerate() {
                 if i == j {
                     continue;
                 }
-                let (pos_j, team_j) = positions_teams[j];
                 if team_i.is_enemy_of(team_j) {
                     let d = (pos_i - pos_j).length();
                     if d < nearest_dist {

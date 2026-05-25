@@ -144,10 +144,6 @@ impl Unit {
         self.base().get_position()
     }
 
-    pub fn set_pos(&mut self, p: Vector2) {
-        self.base_mut().set_position(p);
-    }
-
     pub fn send_to(&mut self, dest: Vector2) {
         self.destination = dest;
         self.state = UnitState::Moving;
