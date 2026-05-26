@@ -4,7 +4,7 @@ RUST_DIR     := rust
 GODOT_DIR    := godot
 GODOT_VERSION := 4.6.2.stable.official
 
-.PHONY: help build build-release build-wasm build-wasm-release check test run run-editor watch clean
+.PHONY: help build build-release build-wasm build-wasm-release build-ios build-ios-release check test run run-editor watch clean export-ios export-ios-release ios-open ios-clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -37,6 +37,18 @@ build-wasm-release: ## Compile for Wasm (release, no-threads)
 		--release \
 		--manifest-path Cargo.toml
 
+build-ios: ## Compile for iOS device — aarch64-apple-ios (debug)
+	$(CARGO) build \
+		--manifest-path $(RUST_DIR)/Cargo.toml \
+		--target aarch64-apple-ios
+
+build-ios-release: ## Compile for iOS device — aarch64-apple-ios (release)
+	$(CARGO) build \
+		--manifest-path $(RUST_DIR)/Cargo.toml \
+		--target aarch64-apple-ios \
+		--release
+
+
 check: ## cargo check + clippy (no full compile)
 	$(CARGO) check --manifest-path $(RUST_DIR)/Cargo.toml
 	$(CARGO) clippy --manifest-path $(RUST_DIR)/Cargo.toml -- -D warnings
@@ -67,6 +79,48 @@ watch: ## Auto-rebuild Rust on save (requires cargo-watch: cargo install cargo-w
 		-x check \
 		-x "clippy -- -D warnings" \
 		-x build
+
+# ---------------------------------------------------------------------------
+# iOS — "Designed for iPad" on macOS and on-device
+# ---------------------------------------------------------------------------
+# Godot 4.6's template has no arm64 iOS Simulator slice, so simulator is not viable.
+# Instead:
+#   make export-ios  →  builds Rust (arm64 device) + exports the Xcode project
+#   make ios-open    →  opens the project in Xcode
+#
+# In Xcode, choose one of two destinations:
+#   "My Mac (Designed for iPad)"  — runs today, free Apple ID is enough
+#   Your physical iOS device      — requires a paid Apple Developer account ($99/yr)
+
+IOS_EXPORT_DIR := godot/export/ios
+IOS_APP_NAME   := godot-gdext-demo
+IOS_XCODE_PROJ := $(IOS_EXPORT_DIR)/$(IOS_APP_NAME).xcodeproj
+
+export-ios: build-ios ## Build arm64 extension (debug) + export Godot → Xcode project
+	mkdir -p $(IOS_EXPORT_DIR)
+	$(GODOT) --headless --path $(GODOT_DIR) \
+		--export-debug "iOS" "../$(IOS_XCODE_PROJ)" || true
+	@test -d "$(IOS_XCODE_PROJ)" || \
+		{ echo "ERROR: Godot export did not produce $(IOS_XCODE_PROJ)"; exit 1; }
+	@echo "Xcode project ready: $(IOS_XCODE_PROJ)"
+	@echo "Run 'make ios-open' then pick 'My Mac (Designed for iPad)' or your device."
+
+export-ios-release: build-ios-release ## Build arm64 extension (release) + export Godot → Xcode project
+	mkdir -p $(IOS_EXPORT_DIR)
+	$(GODOT) --headless --path $(GODOT_DIR) \
+		--export-release "iOS" "../$(IOS_XCODE_PROJ)" || true
+	@test -d "$(IOS_XCODE_PROJ)" || \
+		{ echo "ERROR: Godot export did not produce $(IOS_XCODE_PROJ)"; exit 1; }
+	@echo "Xcode project ready: $(IOS_XCODE_PROJ)"
+	@echo "Run 'make ios-open' then pick 'My Mac (Designed for iPad)' or your device."
+
+ios-open: ## Open the exported Xcode project
+	@test -d "$(IOS_XCODE_PROJ)" || \
+		{ echo "Run 'make export-ios' first"; exit 1; }
+	open "$(IOS_XCODE_PROJ)"
+
+ios-clean: ## Remove the exported Xcode project
+	rm -rf $(IOS_EXPORT_DIR)
 
 # ---------------------------------------------------------------------------
 # Housekeeping
