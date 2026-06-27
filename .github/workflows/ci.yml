@@ -142,7 +142,7 @@ jobs:
         run: |
           source ~/emsdk/emsdk_env.sh
           cd rust/game
-          cargo +nightly build \
+          cargo build \
             --features nothreads \
             -Zbuild-std \
             --target wasm32-unknown-emscripten \
