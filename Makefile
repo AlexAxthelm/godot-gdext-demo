@@ -97,20 +97,18 @@ IOS_APP_NAME   := godot-gdext-demo
 IOS_XCODE_PROJ := $(IOS_EXPORT_DIR)/$(IOS_APP_NAME).xcodeproj
 
 export-ios: build-ios ## Build arm64 extension (debug) + export Godot → Xcode project
+	rm -rf "$(IOS_XCODE_PROJ)"
 	mkdir -p $(IOS_EXPORT_DIR)
 	$(GODOT) --headless --path $(GODOT_DIR) \
-		--export-debug "iOS" "../$(IOS_XCODE_PROJ)" || true
-	@test -d "$(IOS_XCODE_PROJ)" || \
-		{ echo "ERROR: Godot export did not produce $(IOS_XCODE_PROJ)"; exit 1; }
+		--export-debug "iOS" "../$(IOS_XCODE_PROJ)"
 	@echo "Xcode project ready: $(IOS_XCODE_PROJ)"
 	@echo "Run 'make ios-open' then pick 'My Mac (Designed for iPad)' or your device."
 
 export-ios-release: build-ios-release ## Build arm64 extension (release) + export Godot → Xcode project
+	rm -rf "$(IOS_XCODE_PROJ)"
 	mkdir -p $(IOS_EXPORT_DIR)
 	$(GODOT) --headless --path $(GODOT_DIR) \
-		--export-release "iOS" "../$(IOS_XCODE_PROJ)" || true
-	@test -d "$(IOS_XCODE_PROJ)" || \
-		{ echo "ERROR: Godot export did not produce $(IOS_XCODE_PROJ)"; exit 1; }
+		--export-release "iOS" "../$(IOS_XCODE_PROJ)"
 	@echo "Xcode project ready: $(IOS_XCODE_PROJ)"
 	@echo "Run 'make ios-open' then pick 'My Mac (Designed for iPad)' or your device."
 
