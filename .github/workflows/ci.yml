@@ -109,6 +109,7 @@ jobs:
       - name: Install Rust nightly + wasm target + rust-src
         uses: dtolnay/rust-toolchain@nightly
         with:
+          toolchain: nightly-2026-05-25
           components: rust-src
           targets: wasm32-unknown-emscripten
 
