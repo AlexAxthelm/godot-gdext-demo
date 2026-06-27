@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "godot_gdext_demo"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "staticlib"]
 
 [features]
 # Enable for a no-threads wasm build (broader browser/host compatibility).

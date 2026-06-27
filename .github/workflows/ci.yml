@@ -109,6 +109,7 @@ jobs:
       - name: Install Rust nightly + wasm target + rust-src
         uses: dtolnay/rust-toolchain@nightly
         with:
+          toolchain: nightly-2026-05-25
           components: rust-src
           targets: wasm32-unknown-emscripten
 
@@ -141,7 +142,7 @@ jobs:
         run: |
           source ~/emsdk/emsdk_env.sh
           cd rust/game
-          cargo +nightly build \
+          cargo +nightly-2026-05-25 build \
             --features nothreads \
             -Zbuild-std \
             --target wasm32-unknown-emscripten \

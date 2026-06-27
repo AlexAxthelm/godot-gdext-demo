@@ -19,3 +19,10 @@ windows.release.x86_64 = "res://../rust/target/release/godot_gdext_demo.dll"
 ; Wasm — no-threads build (works on all hosts, no SharedArrayBuffer required)
 web.debug.wasm32   = "res://../rust/target/wasm32-unknown-emscripten/debug/godot_gdext_demo.wasm"
 web.release.wasm32 = "res://../rust/target/wasm32-unknown-emscripten/release/godot_gdext_demo.wasm"
+
+; iOS — static library (arm64 device for both debug and release)
+; For local testing: open the exported .xcodeproj in Xcode, pick "My Mac (Designed for iPad)" as the destination.
+; That runs the arm64 device binary directly on macOS via Apple's compatibility layer — no dev account needed.
+; For on-device testing: requires a paid Apple Developer account for signing.
+ios.debug   = "res://../rust/target/aarch64-apple-ios/debug/libgodot_gdext_demo.a"
+ios.release = "res://../rust/target/aarch64-apple-ios/release/libgodot_gdext_demo.a"
