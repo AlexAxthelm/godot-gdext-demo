@@ -113,9 +113,90 @@ Total balls across all holder capacities = total balls in queue (exact match).
 
 ---
 
-## Implementation Notes (deferred — design phase only)
+---
 
-- Godot 4, 2D
-- gdext (Rust extension) may or may not be needed for this simpler game — TBD
-- Ball drifting: simple 2D physics or manual idle animation
-- Level data: likely defined in JSON or Godot Resources
+## Implementation Plan
+
+### What to Delete
+
+- `rust/game/src/game.rs`, `unit.rs`, `map_node.rs`, `team.rs`, `constants.rs`
+- `godot/scenes/hello.tscn`
+- `godot/scenes/game.tscn` (recreate from scratch)
+
+### What to Modify
+
+- `rust/game/src/lib.rs` — remove the 5 `mod` declarations, keep the `#[gdextension]` boilerplate (~6 lines). No new Rust code — GDScript handles everything.
+- `godot/project.godot` — change viewport to 540×960 portrait, add stretch mode `canvas_items` / aspect `keep`
+
+### Scene Hierarchy
+
+```
+game.tscn
+├── TopSection (Control)
+│   ├── BallQueue (Control)           [ball_queue.gd]
+│   │   └── QueueContainer (VBoxContainer)
+│   ├── CenterArea (Node2D)           [center_area.gd]
+│   │   └── (Ball nodes spawned at runtime)
+│   └── StagingArea (Control)         [staging_area.gd]
+│       └── SlotsContainer (VBoxContainer)
+└── HolderGrid (Control)              [holder_grid.gd]
+    └── GridContainer (4 columns)
+        └── (HolderCell nodes, spawned at runtime)
+
+ball.tscn — Ball (Node2D) [ball.gd] + ColorRect
+holder.tscn — Holder (Node2D) [holder.gd] + ColorRect + slot indicators
+```
+
+### Scripts & Responsibilities
+
+| Script | Key Job |
+|---|---|
+| `game.gd` | Orchestrates everything; routes signals; win detection |
+| `level_data.gd` | Resource subclass: `ball_queue[]`, `holders[]`, `staging_slots`, `center_ball_count` |
+| `holder_grid.gd` | Spawns holders; 4×4 grid state; landlocked detection (4-neighbor check); signals `holder_tapped` |
+| `holder.gd` | Stores color/capacity/filled; emits `tapped` and `complete` |
+| `staging_area.gd` | Manages 3 slots; Tweens holder in; on `complete` Tweens holder off-screen; emits `holder_filled` |
+| `center_area.gd` | Drifting balls in bounds; `match_color()` flies a ball to holder; emits `ball_consumed` |
+| `ball_queue.gd` | Visual preview strip; `consume_front()` shifts array and redraws |
+| `ball.gd` | Drift physics in `_process`; `fly_to(pos, callable)` suspends drift and Tweens |
+
+### Ball Drift Physics
+
+Manual `_process` update — no physics engine:
+- Init with random velocity (~30px/s)
+- Bounce off CenterArea bounds
+- Random nudge every 3-5s, clamped to ~50px/s
+- `fly_to()` sets `is_flying = true` and runs a Tween
+
+### Level Data Format
+
+Godot Resources (`.tres`) — type-safe, no parsing code:
+```
+res://scenes/level_data/level_01.tres
+  ball_queue: Array[String]  # ["red", "blue", ...]
+  holders: Array[Dictionary] # [{pos, color, capacity}]
+  staging_slots: int
+  center_ball_count: int
+```
+
+### Animation
+
+All animations use `create_tween()` (no AnimationPlayer):
+- Holder grid→staging: `TRANS_CUBIC`, `EASE_OUT`, 0.35s
+- Ball center→holder: `TRANS_BACK`, `EASE_IN`, 0.4s
+- Holder staging→off-screen: slide right, 0.3s, then `queue_free()`
+
+### Build Order
+
+1. Strip `lib.rs`, update `project.godot`, create stub `game.tscn` → CI green
+2. Add `LevelData` resource + `level_01.tres`, build scene tree layout
+3. `holder_grid.gd`: spawn grid from level data, tap detection, landlocked highlight
+4. `staging_area.gd` + `holder.gd`: holder tap → animate to staging → fill → clear
+5. `ball.gd` + `center_area.gd`: drift balls, fly to holder on match
+6. `ball_queue.gd`: preview strip
+7. Wire `game.gd` signals end-to-end; add restart button; win detection
+
+### Verification
+
+- `make run` (Godot headless smoke test) must stay green after each phase
+- Play through `level_01` start to finish: select holders, watch balls fill, win screen
