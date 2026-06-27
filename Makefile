@@ -4,7 +4,7 @@ RUST_DIR     := rust
 GODOT_DIR    := godot
 GODOT_VERSION := 4.6.2.stable.official
 
-.PHONY: help build build-release build-wasm build-wasm-release build-ios build-ios-release check test run run-editor watch clean export-ios export-ios-release ios-open ios-clean
+.PHONY: help build build-release build-wasm build-wasm-release build-ios build-ios-release check test run run-editor watch clean export-ios export-ios-release ios-open ios-clean serve-wasm
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -36,6 +36,25 @@ build-wasm-release: ## Compile for Wasm (release, no-threads)
 		--target wasm32-unknown-emscripten \
 		--release \
 		--manifest-path Cargo.toml
+
+EMSDK_ENV    := ../emsdk/emsdk_env.sh
+WEB_EXPORT_DIR := godot/export/web
+WEB_SERVE_PORT := 8060
+
+serve-wasm: ## Build wasm (release) + export web + open in browser + serve on :8060
+	. $(EMSDK_ENV) && cd $(RUST_DIR)/game && \
+		cargo +nightly build \
+			--features nothreads \
+			-Zbuild-std \
+			--target wasm32-unknown-emscripten \
+			--release \
+			--manifest-path Cargo.toml
+	mkdir -p $(WEB_EXPORT_DIR)
+	$(GODOT) --headless --path $(GODOT_DIR) \
+		--export-release "Web" "../$(WEB_EXPORT_DIR)/godot-gdext-demo.html"
+	@echo "Serving at http://localhost:$(WEB_SERVE_PORT) — Ctrl-C to stop"
+	@open "http://localhost:$(WEB_SERVE_PORT)/godot-gdext-demo.html"
+	python3 -m http.server $(WEB_SERVE_PORT) --directory $(WEB_EXPORT_DIR)
 
 build-ios: ## Compile for iOS device — aarch64-apple-ios (debug)
 	$(CARGO) build \
