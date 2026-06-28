@@ -13,6 +13,7 @@ var queue: Array = []  ## balls not yet drawn into the center
 var won: bool = false
 
 func _ready() -> void:
+	get_viewport().physics_object_picking = true  # needed for Area2D click picking
 	holder_grid.setup(LEVEL)
 	staging.setup(LEVEL)
 	queue = LEVEL.ball_queue.duplicate()
