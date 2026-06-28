@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=2 format=3 uid="uid://level01"]
+
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ball_queue = Array[String](["blue", "blue", "red", "red", "yellow", "yellow", "blue", "blue", "red", "yellow", "yellow", "green", "green", "green", "yellow", "yellow", "blue", "blue", "blue", "yellow", "yellow", "green", "green", "red", "red", "blue", "green", "blue", "blue", "green", "green", "red", "red", "red", "green", "green", "red", "red", "yellow", "yellow"])
+holders = Array[Dictionary]([{ "col": 0, "row": 0, "color": "red", "capacity": 3 }, { "col": 1, "row": 0, "color": "blue", "capacity": 3 }, { "col": 2, "row": 0, "color": "green", "capacity": 2 }, { "col": 3, "row": 0, "color": "yellow", "capacity": 3 }, { "col": 0, "row": 1, "color": "yellow", "capacity": 2 }, { "col": 1, "row": 1, "color": "green", "capacity": 3 }, { "col": 2, "row": 1, "color": "blue", "capacity": 3 }, { "col": 3, "row": 1, "color": "red", "capacity": 2 }, { "col": 0, "row": 2, "color": "blue", "capacity": 2 }, { "col": 1, "row": 2, "color": "red", "capacity": 3 }, { "col": 2, "row": 2, "color": "yellow", "capacity": 3 }, { "col": 3, "row": 2, "color": "green", "capacity": 2 }, { "col": 0, "row": 3, "color": "green", "capacity": 3 }, { "col": 1, "row": 3, "color": "yellow", "capacity": 2 }, { "col": 2, "row": 3, "color": "red", "capacity": 2 }, { "col": 3, "row": 3, "color": "blue", "capacity": 2 }])
+staging_slots = 3
+center_ball_count = 20
+grid_cols = 4
+grid_rows = 4
